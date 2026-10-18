@@ -26,7 +26,12 @@ sources:
   max_retries: 1
   require_original_publisher_url: true
   require_source_image: false
-  feeds: []
+  feeds:
+    - name: OpenAI News
+      url: https://openai.com/news/rss.xml
+      region_tier: global
+      allowed_hosts:
+        - openai.com
 generation:
   provider: huggingface_local
   model_id: ""
