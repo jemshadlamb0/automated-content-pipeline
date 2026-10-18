@@ -2,7 +2,7 @@
 
 A configurable foundation for multilingual, source-grounded news publishing with Hugging Face model support and a shared Telegram control plane.
 
-> **Status: early foundation release, not yet an end-to-end publisher.** This repository includes profile-driven configuration, a local Hugging Face adapter, source-grounded editorial prompt composition, a candidate-ranking helper, defensive RSS/Atom XML parsing, structured output validation, URL policy checks, secret-pattern scanning and CI. Production source fetching/article extraction, multi-tenant Telegram control plane, durable queue, live publishing/media adapters and billing remain unimplemented. Publishing is disabled by default.
+> **Status: early foundation release; the safe source-ingestion slice is under development.** The repository includes profile-driven configuration, a local Hugging Face adapter, editorial prompt composition, regional-scoring utilities, defensive RSS/Atom parsing, structured output validation, SSRF URL-policy primitives, security checks and CI. The complete multi-tenant Telegram control plane, durable job queue, live publishing/media adapter and billing are not implemented. Publishing is disabled by default.
 
 ## Included profiles
 
@@ -10,7 +10,7 @@ A configurable foundation for multilingual, source-grounded news publishing with
 
 **Languages/locales:** Malayalam, English (India), Hindi, Tamil, Spanish, Arabic, French, Bengali, Portuguese, Russian, Indonesian, Urdu, German, Japanese, Nigerian Pidgin, Persian, Marathi, Vietnamese, Telugu, Turkish, Malay (Malaysia), Dutch, Assamese, Italian, Odia, Bihari language family, Rajasthani language group, Punjabi, Bhojpuri, Kannada and Gujarati.
 
-Language does not uniquely identify a region. Users can override the region; Bengali and Arabic require explicit region selection. Bihari and Rajasthani are family/group profiles requiring a specific variety. Language profiles do not guarantee any particular model's writing quality.
+Language does not uniquely identify a region. Users can override the region; ambiguous languages require an explicit region. Bihari and Rajasthani require a specific variety before unattended use. Language profiles do not guarantee a model's editorial quality.
 
 ## Quick start
 
@@ -31,37 +31,61 @@ Optional local Hugging Face inference dependencies:
 python -m pip install -e ".[huggingface]"
 ~~~
 
-Review the model card, licence, provenance, target-language performance, RAM requirements and immutable revision before use. CPU inference may be slow or impractical for long articles.
+Review the model card, licence, provenance, target-language performance, RAM requirements and immutable revision before use. CPU inference may be slow or unsuitable for long articles.
+
+## Safe source-ingestion CLI
+
+The secure HTTP fetcher and source discovery are being added in the current feature branch. After that branch passes CI and is merged, the intended local commands will be:
+
+~~~bash
+# Fetch configured RSS feeds, deduplicate candidates and print JSON; no publishing.
+python -m acp.main --discover-feeds
+
+# Fetch one public HTTPS article and extract bounded evidence; no publishing.
+python -m acp.main --fetch-article https://publisher.example/news/story
+
+# Validate settings/profiles.
+python -m acp.main --check-config
+~~~
+
+To use feed discovery, add trusted source definitions to sources.feeds in config/settings.yaml. Example schema:
+
+~~~yaml
+sources:
+  feeds:
+    - name: Example publisher RSS
+      url: https://publisher.example/rss.xml
+      region_tier: local
+      allowed_hosts:
+        - publisher.example
+~~~
+
+Only HTTPS is accepted by default. The hostname allowlist constrains the feed and any redirect destinations. Do not add feed URLs you do not trust. These CLI operations do not generate AI articles or publish to Telegram.
 
 ## Wiki
 
-- [Versioned Wiki source and index](docs/wiki/README.md)
+- [Versioned Wiki source](docs/wiki/README.md)
 - [Main branch protection guide](docs/BRANCH_PROTECTION.md)
 - [Actual GitHub Wiki tab](https://github.com/jemshadlamb0/automated-content-pipeline/wiki)
 
-The GitHub Wiki tab is a separate Git repository and cannot be populated just by committing Markdown under docs/wiki/. To initialize it, click Wiki → Create the first page in GitHub and save it once. Then from a trusted local clone run:
-
-~~~bash
-python scripts/publish_wiki.py --dry-run
-python scripts/publish_wiki.py
-~~~
-
-The script syncs the maintained documentation into the real Wiki using your normal Git credential helper. See [Publishing the actual GitHub Wiki](docs/wiki/publishing-the-wiki.md).
+The actual Wiki is separate from the source repository. Initialize it once in the GitHub UI, then sync prepared pages from a trusted local clone using the dry-run mode of scripts/publish_wiki.py, followed by scripts/publish_wiki.py.
 
 ## Security
 
 - Publication is disabled and dry-run is enabled.
-- Secrets, model weights, caches and runtime data must not be committed.
-- Paid hosted-inference fallback is disabled.
+- Never commit tokens, model weights, caches, private data or fetched media.
+- No automatic paid inference fallback.
 - Feed parsing uses a defensive XML parser and bounded document/item counts.
-- URL policy rejects local/private/non-global destinations and suspicious URL structures. A production fetcher still needs redirect-hop validation and DNS-rebinding-resistant connection binding.
-- CI runs Ruff, Bandit, pip-audit and a best-effort common-secret pattern scanner. These checks reduce risk but cannot guarantee that a repository is secret-free or invulnerable.
-- Public media is not automatically licensed for redistribution.
+- The source fetcher validates every redirect, connects to a validated IP, checks TLS against the original hostname, disallows downgrade redirects, limits response size and time, and restricts content types.
+- URL/fetcher tests use mocked responses; CI does not crawl real publishers.
+- The best-effort secret scanner, Bandit, pip-audit and CodeQL reduce risk but cannot prove the repository is invulnerable.
 
-See [Security policy](SECURITY.md) and [Security Handbook](docs/wiki/security-handbook.md).
+The URL fetcher is only for bounded text/feed requests, not video downloads. Public media is not automatically licensed for redistribution. See [Security policy](SECURITY.md) and [Security Handbook](docs/wiki/security-handbook.md).
 
-Use GitHub for code review, CI, tests, releases and trusted deployment workflows. Do not assume GitHub Actions is an appropriate commercial production runtime; review applicable provider terms before launch.
+## Architecture status
 
-## License
+The intended design separates one owner-operated Telegram bot/control plane from a separately budgeted execution plane. Source ingestion must be reliable before inference or publishing is activated. See [roadmap](docs/ROADMAP.md).
 
-A licence has not been added yet. Public visibility alone does not grant permission to reuse, modify or redistribute this project. Confirm the intended commercial and contribution policy before adding a licence.
+## Licence
+
+A licence has not been added yet. Public visibility alone does not grant permission to reuse, modify or redistribute the code. Confirm the intended commercial and contribution policy before adding one.

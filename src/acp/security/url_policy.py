@@ -1,15 +1,15 @@
-"""SSRF-resistant URL validation primitives.
+"""SSRF-resistant URL resolution primitives.
 
-A production downloader must validate every redirect and ensure the actual
-connected peer matches an approved public IP; checking a URL string alone is
-not enough to prevent DNS rebinding.
+A production downloader must validate each redirect hop and bind the socket to
+one of the validated IP addresses while verifying TLS against the original host.
 """
 from __future__ import annotations
 
 import ipaddress
 import socket
+from dataclasses import dataclass
 from typing import Callable, Iterable
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 
 
 class UnsafeURLError(ValueError):
@@ -19,26 +19,36 @@ class UnsafeURLError(ValueError):
 Resolver = Callable[[str, int], Iterable[str]]
 
 
+@dataclass(frozen=True)
+class ResolvedPublicURL:
+    url: str
+    scheme: str
+    host: str
+    port: int
+    addresses: tuple[str, ...]
+    request_target: str
+
+
 def _resolve_public_addresses(host: str, port: int) -> list[str]:
     try:
         answers = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
     except OSError as exc:
-        raise UnsafeURLError(f"DNS resolution failed for host: {host}") from exc
+        raise UnsafeURLError("DNS resolution failed") from exc
     return list(dict.fromkeys(answer[4][0] for answer in answers))
 
 
-def validate_public_http_url(
+def resolve_public_http_url(
     value: str,
     *,
     allow_http: bool = False,
     resolver: Resolver | None = None,
-) -> str:
-    """Validate an absolute public URL.
+) -> ResolvedPublicURL:
+    """Validate a public HTTP(S) URL and return the exact validated addresses.
 
-    HTTPS is required by default. Only ports 443 (HTTPS) and, if explicitly
-    allowed, 80 (HTTP) are accepted. All resolved addresses must be global.
-    The resolver argument supports deterministic tests; production callers
-    must additionally bind the connection to a validated address.
+    HTTPS is mandatory unless the caller explicitly allows HTTP. Only standard
+    ports are accepted. Every DNS A/AAAA answer must be globally routable. The
+    caller must connect to a returned address rather than resolving the hostname
+    again, and must repeat this process for every redirect.
     """
     if not isinstance(value, str) or not value or len(value) > 4096:
         raise UnsafeURLError("URL must be a non-empty string of at most 4096 characters")
@@ -55,10 +65,12 @@ def validate_public_http_url(
     except ValueError as exc:
         raise UnsafeURLError("Malformed URL") from exc
 
-    # Percent-encoding in the authority is ambiguous and is unnecessary for DNS names.
     authority = value.split("://", 1)[1].split("/", 1)[0].split("?", 1)[0].split("#", 1)[0] if "://" in value else ""
     if "%" in authority:
         raise UnsafeURLError("Percent-encoding is not allowed in URL authority")
+    if parsed.fragment:
+        # Fragments are not sent to the server; reject to avoid ambiguous identities.
+        raise UnsafeURLError("URL fragments are not accepted")
 
     if scheme != "https" and not (allow_http and scheme == "http"):
         raise UnsafeURLError("HTTPS is required unless HTTP is explicitly enabled for a trusted feed")
@@ -77,15 +89,17 @@ def validate_public_http_url(
     expected_port = 443 if scheme == "https" else 80
     if port is not None and port != expected_port:
         raise UnsafeURLError(f"Only port {expected_port} is allowed for {scheme}")
+    effective_port = port or expected_port
 
     try:
         literal_ip = ipaddress.ip_address(ascii_host)
         addresses = [str(literal_ip)]
     except ValueError:
-        addresses = list((resolver or _resolve_public_addresses)(ascii_host, expected_port))
+        addresses = list((resolver or _resolve_public_addresses)(ascii_host, effective_port))
 
     if not addresses:
         raise UnsafeURLError("Hostname did not resolve to an address")
+    validated: list[str] = []
     for address in addresses:
         try:
             parsed_ip = ipaddress.ip_address(address)
@@ -93,4 +107,27 @@ def validate_public_http_url(
             raise UnsafeURLError("Resolver returned an invalid IP address") from exc
         if not parsed_ip.is_global:
             raise UnsafeURLError("URL resolves to a non-public IP address")
+        normalized = str(parsed_ip)
+        if normalized not in validated:
+            validated.append(normalized)
+
+    target = urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
+    return ResolvedPublicURL(
+        url=value,
+        scheme=scheme,
+        host=ascii_host,
+        port=effective_port,
+        addresses=tuple(validated),
+        request_target=target,
+    )
+
+
+def validate_public_http_url(
+    value: str,
+    *,
+    allow_http: bool = False,
+    resolver: Resolver | None = None,
+) -> str:
+    """Compatibility helper that validates and returns the original URL."""
+    resolve_public_http_url(value, allow_http=allow_http, resolver=resolver)
     return value
