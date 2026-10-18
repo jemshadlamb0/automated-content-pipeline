@@ -1,0 +1,12 @@
+id: ml-IN
+name: Malayalam (India)
+language: Malayalam
+locale: ml-IN
+default_region: IN-KL
+editorial_rules:
+  - Write natural, idiomatic Malayalam news prose, not word-by-word translation.
+  - Use a clear news lead and logical paragraphs with transitions natural to Malayalam.
+  - Retain product names, model numbers, acronyms and familiar technical English terms when clearer.
+  - Explain genuinely difficult technical terms in brackets when useful; do not force-translate every English term.
+  - Prioritize Kerala and India context only when supported by the source.
+  - Preserve names, dates, numbers, units, attribution and uncertainty.

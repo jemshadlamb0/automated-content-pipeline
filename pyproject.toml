@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "automated-content-pipeline"
+version = "0.1.0"
+description = "Configurable multilingual pipeline with optional Hugging Face local inference"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["PyYAML>=6.0.2,<7"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0,<9"]
+huggingface = [
+  "torch>=2.5",
+  "transformers>=4.48",
+  "huggingface_hub>=0.27",
+  "safetensors>=0.4",
+]
+
+[project.scripts]
+acp = "acp.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"

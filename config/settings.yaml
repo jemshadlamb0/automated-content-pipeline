@@ -1,0 +1,52 @@
+app:
+  name: automated-content-pipeline
+  environment: development
+  timezone: Asia/Kolkata
+profile:
+  niche: ai
+  language: ml-IN
+  tone: broadcast
+  approach: explainer
+  region: IN-KL
+  custom_instructions: ""
+schedule:
+  poll_interval_minutes: 15
+  min_post_interval_minutes: 60
+  max_posts_per_run: 1
+  max_posts_per_day: 8
+sources:
+  discovery: rss
+  max_candidates_per_run: 30
+  freshness_hours: 24
+  require_original_publisher_url: true
+  require_source_image: false
+  feeds: []
+generation:
+  provider: huggingface_local
+  model_id: ""
+  device: cpu
+  max_input_characters: 16000
+  max_new_tokens: 1200
+  temperature: 0.2
+  allow_hosted_inference: false
+  allow_paid_fallback: false
+publication:
+  platform: telegram
+  enabled: false
+  dry_run: true
+  attach_video_when_permitted: true
+  fallback_to_publisher_page: true
+limits:
+  max_model_requests_per_run: 3
+  max_model_requests_per_day: 20
+  max_media_download_bytes: 20000000
+  max_publications_per_month: 200
+safety:
+  require_source_url: true
+  hold_high_impact_health_claims: true
+  hold_personalized_investment_advice: true
+  hold_unverified_crypto_market_claims: true
+  publish_unlicensed_media: false
+state:
+  backend: local_development
+  path: .state/dev.json

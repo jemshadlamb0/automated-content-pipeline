@@ -1,0 +1,15 @@
+id: ai
+name: AI
+topics:
+  - generative AI and foundation models
+  - AI agents and AI-enabled products
+  - AI research, evaluations and benchmarks
+  - AI chips and infrastructure
+  - robotics and AI policy
+exclusions: []
+freshness_hours: 24
+preferred_source_types: [official_announcement, research_paper, reputable_publisher]
+editorial_guardrails:
+  - Distinguish a vendor announcement from independently verified performance.
+  - Preserve benchmark methodology, sample size and limitations where supplied.
+  - Do not describe speculation about artificial general intelligence as established fact.
