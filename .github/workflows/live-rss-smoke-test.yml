@@ -1,6 +1,11 @@
 name: Live RSS ingestion smoke test
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "config/settings.yaml"
+      - ".github/workflows/live-rss-smoke-test.yml"
   workflow_dispatch:
 
 permissions:
