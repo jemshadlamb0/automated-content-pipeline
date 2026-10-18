@@ -17,7 +17,7 @@
 - [x] Parse configured RSS/Atom feeds and deduplicate candidate URLs/headlines within a run.
 - [x] Extract bounded HTML metadata and paragraph text without executing scripts.
 - [x] Add non-publishing CLI commands to validate config, discover feeds and extract one article.
-- [ ] Pass full CI and security checks on this feature branch and merge only after review.
+- [x] Pass full CI and security checks before merging through the protected main branch.
 - [ ] Add curated feed profiles and measured freshness/canonicalization tests.
 
 ## Phase 2 — editorial inference

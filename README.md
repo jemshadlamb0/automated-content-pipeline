@@ -35,7 +35,7 @@ Review the model card, licence, provenance, target-language performance, RAM req
 
 ## Safe source-ingestion CLI
 
-The secure HTTP fetcher and source discovery are being added in the current feature branch. After that branch passes CI and is merged, the intended local commands will be:
+The secure HTTP fetcher and source discovery are included in the Phase 1 implementation. These local commands inspect feeds and source text without generating AI articles or publishing:
 
 ~~~bash
 # Fetch configured RSS feeds, deduplicate candidates and print JSON; no publishing.
