@@ -8,6 +8,7 @@ Welcome to the versioned documentation for Automated Content Pipeline.
 - [Language catalogue](languages.md) — locale profiles, script variants, region selection and limitations.
 - [Niches and editorial policy](niches-editorial.md) — topic-specific and high-impact requirements.
 - [Regional news ranking](regional-ranking.md) — ranking signals and local/national/global allocation.
+- [Source content acquisition policy](source-content-policy.md) — permitted full-text retrieval tiers, 403 handling, attribution and licensed/API fallback options.
 
 ## Engineering and operations
 - [Security handbook](security-handbook.md) — threat model, secrets, SSRF, prompt injection, tenant isolation and CI.
