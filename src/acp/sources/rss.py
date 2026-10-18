@@ -46,10 +46,12 @@ def _inner_content(node: ET.Element | None) -> str:
 
 def _atom_content_type(value: str | None) -> str:
     value = (value or "text").strip().lower()
-    if value == "html":
+    if value in {"html", "text/html"}:
         return "text/html"
-    if value == "xhtml":
+    if value in {"xhtml", "application/xhtml+xml"}:
         return "application/xhtml+xml"
+    if value in {"text", "text/plain"}:
+        return "text/plain"
     return "text/plain"
 
 
