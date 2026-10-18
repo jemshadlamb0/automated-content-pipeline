@@ -38,7 +38,13 @@ def main() -> int:
     actions.add_argument("--discover-feeds", action="store_true", help="Fetch configured RSS feeds safely; never publish")
     actions.add_argument("--fetch-article", metavar="HTTPS_URL", help="Safely fetch and extract one public HTML article; never publish")
     parser.add_argument("--publisher-name", default="", help="Optional publisher label for --fetch-article")
+    parser.add_argument(
+        "--include-feed-content", action="store_true",
+        help="Include publisher-supplied full feed content in JSON; valid only with --discover-feeds",
+    )
     args = parser.parse_args()
+    if args.include_feed_content and not args.discover_feeds:
+        parser.error("--include-feed-content can only be used with --discover-feeds")
 
     try:
         settings_path = Path(args.settings)
@@ -85,7 +91,14 @@ def main() -> int:
             "feeds_configured": len(sources["feeds"]),
             "feeds_checked": result.feeds_checked,
             "candidate_count": len(result.candidates),
-            "candidates": [asdict(item) for item in result.candidates],
+            "candidates": [
+                {
+                    **{key: value for key, value in asdict(item).items() if key != "feed_content"},
+                    "feed_content_chars": len(item.feed_content),
+                    **({"feed_content": item.feed_content} if args.include_feed_content else {}),
+                }
+                for item in result.candidates
+            ],
             "failures": [asdict(item) for item in result.failures],
             "publishing_performed": False,
         }, ensure_ascii=False, indent=2))
