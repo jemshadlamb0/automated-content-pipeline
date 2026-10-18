@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 import pytest
 
@@ -10,6 +11,13 @@ DEFAULT = ROOT / "config" / "settings.yaml"
 
 def _write_settings(tmp_path, replacement_from, replacement_to):
     text = DEFAULT.read_text(encoding="utf-8")
+    # Keep validation tests independent from any trusted feeds configured for live runs.
+    text = re.sub(
+        r"(?ms)^  feeds:.*?(?=^[A-Za-z0-9_-]+:)",
+        "  feeds: []\n",
+        text,
+        count=1,
+    )
     assert replacement_from in text
     path = tmp_path / "settings.yaml"
     path.write_text(text.replace(replacement_from, replacement_to), encoding="utf-8")
