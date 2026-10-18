@@ -45,6 +45,10 @@ jobs:
           import subprocess
           import sys
           from pathlib import Path
+          from acp.config import load_settings
+          from acp.security.url_policy import UnsafeURLError
+          from acp.sources.article import ArticleExtractionError, extract_article
+          from acp.sources.http_fetcher import HTTPFetchError, SafeHTTPFetcher
 
           summary_path = Path(os.environ["GITHUB_STEP_SUMMARY"])
 
@@ -78,10 +82,67 @@ jobs:
               )
               raise SystemExit(result.returncode or 1)
 
+          # Fetch a real article from the trusted feed and extract bounded source text.
+          settings = load_settings("config/settings.yaml")
+          sources = settings["sources"]
+          fetcher = SafeHTTPFetcher(
+              timeout_seconds=float(sources["timeout_seconds"]),
+              max_response_bytes=sources["max_response_bytes"],
+              max_redirects=sources["max_redirects"],
+              max_retries=sources["max_retries"],
+              allow_http=False,
+          )
+          article_result = {"status": "failed", "attempts": 0, "body_characters": 0}
+          article_errors = []
+          for candidate in payload.get("candidates", [])[:3]:
+              feed_config = next(
+                  (feed for feed in sources["feeds"] if feed.get("name") == candidate.get("feed_name")),
+                  None,
+              )
+              if feed_config is None:
+                  article_errors.append({"title": str(candidate.get("title", ""))[:160], "reason": "No configured source allowlist matched this candidate"})
+                  continue
+              article_result["attempts"] += 1
+              try:
+                  response = fetcher.fetch(
+                      candidate["url"],
+                      allowed_hosts=feed_config.get("allowed_hosts") or None,
+                      allowed_content_types={"text/html", "application/xhtml+xml"},
+                  )
+                  evidence = extract_article(
+                      response.text(),
+                      response.url,
+                      source_name=candidate.get("feed_name", "Unknown publisher"),
+                      fallback_title=candidate.get("title", ""),
+                      content_type=response.content_type,
+                  )
+                  body_characters = len(evidence.body_text.strip())
+                  if body_characters < 80:
+                      raise ArticleExtractionError("Extracted body text was shorter than 80 characters")
+                  article_result = {
+                      "status": "extracted",
+                      "attempts": article_result["attempts"],
+                      "title": evidence.title[:300],
+                      "source_url": evidence.source_url,
+                      "published_at": evidence.published_at,
+                      "content_type": evidence.content_type,
+                      "body_characters": body_characters,
+                      "description_present": bool(evidence.description),
+                      "publishing_performed": False,
+                  }
+                  break
+              except (HTTPFetchError, UnsafeURLError, ArticleExtractionError, ValueError, OSError) as exc:
+                  article_errors.append({
+                      "title": str(candidate.get("title") or "(untitled)")[:160],
+                      "reason": re.sub(r"[\\r\\n\\t]", " ", f"{type(exc).__name__}: {exc}")[:300],
+                  })
+          article_result["errors"] = article_errors
+          payload["article_extraction"] = article_result
           Path("feed-discovery.json").write_text(
               json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
               encoding="utf-8",
           )
+          print(json.dumps({"article_extraction": article_result}, ensure_ascii=False, indent=2))
 
           configured = payload.get("feeds_configured", 0)
           checked = payload.get("feeds_checked", 0)
@@ -95,7 +156,8 @@ jobs:
               ("One feed fetched successfully", checked == 1),
               ("At least one article candidate parsed", candidate_count > 0),
               ("No feed failures", len(failures) == 0),
-              ("No publishing performed", publishing is False),
+              ("Article page fetched and text extracted", article_result.get("status") == "extracted" and article_result.get("body_characters", 0) >= 80),
+              ("No publishing performed", publishing is False and article_result.get("publishing_performed") is False),
               ("CLI exit code is zero", result.returncode == 0),
           ]
           passed = all(ok for _, ok in checks)
@@ -109,6 +171,9 @@ jobs:
               f"- Feeds checked successfully: {checked}",
               f"- Article candidates parsed: {candidate_count}",
               f"- Feed failures: {len(failures)}",
+              f"- Article extraction status: {article_result.get('status')}",
+              f"- Extracted article body characters: {article_result.get('body_characters', 0)}",
+              f"- Article fetch attempts: {article_result.get('attempts', 0)}",
               f"- Publishing performed: {publishing}",
               "",
               "### Checks",
@@ -133,9 +198,16 @@ jobs:
                   reason = re.sub(r"[\r\n\t]", " ", str(failure.get("reason") or "Unknown error"))[:300]
                   lines.append(f"- **{name}:** {reason}")
 
+          if article_errors:
+              lines.extend(["", "### Article extraction attempts"])
+              for failure in article_errors:
+                  title = re.sub(r"[\\r\\n\\t|]", " ", str(failure.get("title") or "(untitled)"))[:160]
+                  reason = re.sub(r"[\\r\\n\\t|]", " ", str(failure.get("reason") or "Unknown error"))[:300]
+                  lines.append(f"- **{title}:** {reason}")
+
           lines.extend([
               "",
-              "Full JSON output is available in the Fetch live RSS and validate the result step log.",
+              "Full JSON output is available in the Fetch live RSS and validate the result step log."
               "The workflow uses read-only repository permissions and does not generate or publish posts.",
           ])
           write_summary("\n".join(lines))
