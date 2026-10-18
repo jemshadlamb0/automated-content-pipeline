@@ -12,7 +12,6 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
-from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_DIR = ROOT / "docs" / "wiki"
@@ -34,7 +33,10 @@ def normalize_wiki_link(target: str) -> str:
 
 def render_wiki_markdown(text: str) -> str:
     """Rewrite same-directory .md links for GitHub Wiki page URLs."""
-    return LINK_RE.sub(lambda match: match.group(1) + normalize_wiki_link(match.group("target")) + match.group(3), text)
+    return LINK_RE.sub(
+        lambda match: match.group(1) + normalize_wiki_link(match.group("target")) + match.group(3),
+        text,
+    )
 
 
 def parse_github_repo(remote: str) -> tuple[str, str]:
@@ -53,12 +55,13 @@ def parse_github_repo(remote: str) -> tuple[str, str]:
 
 def _run(args: list[str], cwd: Path | None = None) -> subprocess.CompletedProcess[str]:
     try:
-        return subprocess.run(args, cwd=cwd, check=True, text=True, capture_output=True)
+        return subprocess.run(
+            args, cwd=cwd, check=True, text=True, capture_output=True
+        )
     except FileNotFoundError as exc:
         raise WikiPublishError("Git must be installed and available on PATH.") from exc
     except subprocess.CalledProcessError as exc:
         details = (exc.stderr or exc.stdout or "").strip()
-        # Do not dump any environment or credential helper output wholesale.
         safe = details[-800:]
         raise WikiPublishError(f"Command failed: {args[0]} (exit {exc.returncode}). {safe}") from exc
 
@@ -125,7 +128,6 @@ def main() -> int:
             if not changed:
                 print(f"Wiki is already up to date ({len(pages)} managed pages).")
                 return 0
-
             _run(["git", "add", "--", *changed], cwd=wiki_dir)
             _run(["git", "commit", "-m", "docs: sync repository Wiki pages"], cwd=wiki_dir)
             _run(["git", "push", "origin", "HEAD"], cwd=wiki_dir)

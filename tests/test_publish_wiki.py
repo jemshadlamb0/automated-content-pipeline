@@ -1,7 +1,6 @@
-from pathlib import Path
 import pytest
 
-from scripts.publish_wiki import WikiPublishError, build_pages, normalize_wiki_link, parse_github_repo, render_wiki_markdown
+from scripts.publish_wiki import build_pages, normalize_wiki_link, parse_github_repo, render_wiki_markdown, WikiPublishError
 
 
 def test_source_readme_maps_to_home_page():
