@@ -31,6 +31,9 @@ class DiscoveredCandidate:
     feed_name: str
     feed_url: str
     region_tier: str
+    publisher_name: str | None = None
+    feed_content: str = ""
+    feed_content_type: str = "text/plain"
 
 
 @dataclass(frozen=True)
@@ -162,9 +165,14 @@ def discover_candidates(
                     normalized_url=normalized_url,
                     summary=re.sub(r"\s+", " ", item.summary).strip()[:5000],
                     published_at=item.published_at[:120] if item.published_at else None,
-                    feed_name=str(item.source_name or feed_name)[:200],
+                    # Keep this as the configured feed label so callers can recover
+                    # its allowlist. Preserve the feed item's publisher label separately.
+                    feed_name=feed_name,
                     feed_url=response.url,
                     region_tier=region_tier,
+                    publisher_name=str(item.source_name)[:200] if item.source_name else None,
+                    feed_content=item.feed_content[:20_000],
+                    feed_content_type=item.feed_content_type,
                 ))
                 if len(candidates) >= max_candidates:
                     return DiscoveryResult(tuple(candidates), tuple(failures), feeds_checked)

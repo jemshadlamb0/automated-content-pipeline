@@ -1,6 +1,6 @@
 import pytest
 
-from acp.sources.article import ArticleExtractionError, extract_article
+from acp.sources.article import ArticleExtractionError, extract_article, extract_plain_feed_content
 
 
 def test_extracts_metadata_and_article_text_skipping_script_and_navigation():
@@ -67,4 +67,30 @@ def test_rejects_invalid_source_url():
             "<html><head><title>Headline</title></head><body><article><p>" + ("Useful text. " * 10) + "</p></article></body></html>",
             "javascript:alert(1)",
             min_body_chars=80,
+        )
+
+
+
+def test_extracts_publisher_supplied_plain_text_feed_content():
+    evidence = extract_plain_feed_content(
+        "The publisher's feed provides a complete paragraph describing a concrete product announcement. "
+        "A second sentence explains the availability and scope directly from the publisher's own content.",
+        "https://news.example.org/story",
+        source_name="Example News",
+        title="A useful headline",
+        published_at="2026-10-18T09:00:00Z",
+        description="RSS teaser",
+    )
+    assert evidence.title == "A useful headline"
+    assert evidence.content_type == "text/plain"
+    assert "concrete product announcement" in evidence.body_text
+    assert evidence.source_url == "https://news.example.org/story"
+
+
+def test_rejects_short_publisher_supplied_plain_text_content():
+    with pytest.raises(ArticleExtractionError, match="Insufficient"):
+        extract_plain_feed_content(
+            "Too short",
+            "https://news.example.org/story",
+            title="A headline",
         )

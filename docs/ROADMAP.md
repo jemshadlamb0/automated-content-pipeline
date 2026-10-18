@@ -15,6 +15,10 @@
 - [x] Validate every redirect; reject HTTPS-to-HTTP downgrade.
 - [x] Bound network timeout, response size, redirects, retries and content types.
 - [x] Parse configured RSS/Atom feeds and deduplicate candidate URLs/headlines within a run.
+- [x] Retain publisher-provided RSS `content:encoded` and Atom `content` separately from short summaries.
+- [x] Keep configured feed identity separate from any item-level publisher label for safe host-allowlist selection.
+- [x] Prefer publisher-provided feed text before attempting ordinary allowlisted article-page retrieval.
+- [x] Document permitted retrieval tiers and fail-closed handling for HTTP 403/access restrictions.
 - [x] Extract bounded HTML metadata and paragraph text without executing scripts.
 - [x] Add non-publishing CLI commands to validate config, discover feeds and extract one article.
 - [x] Pass full CI and security checks before merging through the protected main branch.

@@ -62,6 +62,8 @@ sources:
 
 Only HTTPS is accepted by default. The hostname allowlist constrains the feed and any redirect destinations. Do not add feed URLs you do not trust. These CLI operations do not generate AI articles or publish to Telegram.
 
+The parser retains publisher-provided RSS `content:encoded` and Atom `content` separately from short descriptions. Full embedded text is omitted from CLI JSON unless explicitly requested with `--include-feed-content`. If a publisher page responds with HTTP 403 or another access restriction, the pipeline must not try to bypass it; use permitted embedded content, an official documented API/licensed feed, or keep the item metadata-only. See [Source content acquisition and use policy](docs/wiki/source-content-policy.md).
+
 ## Wiki
 
 - [Versioned Wiki source](docs/wiki/README.md)

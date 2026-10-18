@@ -81,3 +81,33 @@ def test_non_https_candidate_links_are_skipped():
     fetcher = FakeFetcher({"https://feeds.example.org/feed": xml})
     result = discover_candidates([{"url": "https://feeds.example.org/feed"}], fetcher)
     assert [candidate.title for candidate in result.candidates] == ["Safe article"]
+
+
+
+def test_candidate_carries_embedded_content_and_keeps_configured_feed_label():
+    xml = """<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel><item>
+      <title>Full publisher story</title>
+      <link>https://news.example.org/full-story</link>
+      <source url="https://news.example.org/">Editorial label</source>
+      <description>A brief teaser.</description>
+      <content:encoded><![CDATA[<article><p>This is publisher-supplied full story content with enough detail to test extraction reliably.</p>
+      <p>A second paragraph adds context and lets the downstream pipeline build an evidence-grounded summary.</p></article>]]></content:encoded>
+    </item></channel></rss>"""
+    fetcher = FakeFetcher({"https://feeds.example.org/feed": xml})
+    result = discover_candidates(
+        [{
+            "name": "Trusted Example Feed",
+            "url": "https://feeds.example.org/feed",
+            "region_tier": "global",
+            "allowed_hosts": ["feeds.example.org", "news.example.org"],
+        }],
+        fetcher,
+    )
+    assert len(result.candidates) == 1
+    item = result.candidates[0]
+    assert item.feed_name == "Trusted Example Feed"
+    assert item.publisher_name == "Editorial label"
+    assert item.feed_content_type == "text/html"
+    assert "publisher-supplied full story content" in item.feed_content
+    assert item.summary == "A brief teaser."

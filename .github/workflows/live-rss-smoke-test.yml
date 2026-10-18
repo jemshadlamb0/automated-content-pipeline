@@ -47,7 +47,7 @@ jobs:
           from pathlib import Path
           from acp.config import load_settings
           from acp.security.url_policy import UnsafeURLError
-          from acp.sources.article import ArticleExtractionError, extract_article
+          from acp.sources.article import ArticleExtractionError, extract_article, extract_plain_feed_content
           from acp.sources.http_fetcher import HTTPFetchError, SafeHTTPFetcher
 
           summary_path = Path(os.environ["GITHUB_STEP_SUMMARY"])
@@ -58,7 +58,7 @@ jobs:
 
           try:
               result = subprocess.run(
-                  [sys.executable, "-m", "acp.main", "--discover-feeds"],
+                  [sys.executable, "-m", "acp.main", "--discover-feeds", "--include-feed-content"],
                   capture_output=True,
                   text=True,
                   timeout=90,
@@ -68,8 +68,6 @@ jobs:
               write_summary("## Live RSS ingestion smoke test\n\n**Result: FAILED** — discovery exceeded the 90-second timeout.")
               raise SystemExit(1)
 
-          if result.stdout:
-              print(result.stdout, end="")
           if result.stderr:
               print(result.stderr, file=sys.stderr, end="")
 
@@ -102,6 +100,56 @@ jobs:
               if feed_config is None:
                   article_errors.append({"title": str(candidate.get("title", ""))[:160], "reason": "No configured source allowlist matched this candidate"})
                   continue
+
+              # Prefer full text explicitly supplied by the publisher in RSS/Atom.
+              # This avoids fetching a webpage when usable publisher-provided content exists.
+              embedded = str(candidate.get("feed_content") or "")
+              embedded_type = str(candidate.get("feed_content_type") or "text/plain").lower()
+              if len(embedded.strip()) >= 80:
+                  article_result["attempts"] += 1
+                  try:
+                      if embedded_type in {"text/html", "application/xhtml+xml"}:
+                          evidence = extract_article(
+                              embedded,
+                              candidate["url"],
+                              source_name=candidate.get("publisher_name") or candidate.get("feed_name", "Unknown publisher"),
+                              fallback_title=candidate.get("title", ""),
+                              content_type=embedded_type,
+                          )
+                      elif embedded_type == "text/plain":
+                          evidence = extract_plain_feed_content(
+                              embedded,
+                              candidate["url"],
+                              source_name=candidate.get("publisher_name") or candidate.get("feed_name", "Unknown publisher"),
+                              title=candidate.get("title", ""),
+                              published_at=candidate.get("published_at"),
+                              description=candidate.get("summary", ""),
+                          )
+                      else:
+                          raise ArticleExtractionError("Unsupported publisher-supplied feed content type")
+                      body_characters = len(evidence.body_text.strip())
+                      if body_characters >= 80:
+                          article_result = {
+                              "status": "extracted",
+                              "retrieval_method": "publisher_provided_feed_content",
+                              "attempts": article_result["attempts"],
+                              "title": evidence.title[:300],
+                              "source_url": evidence.source_url,
+                              "published_at": evidence.published_at,
+                              "content_type": evidence.content_type,
+                              "body_characters": body_characters,
+                              "description_present": bool(evidence.description),
+                              "publishing_performed": False,
+                          }
+                          break
+                  except (ArticleExtractionError, ValueError) as exc:
+                      article_errors.append({
+                          "title": str(candidate.get("title") or "(untitled)")[:160],
+                          "reason": re.sub(r"[\r\n\t]", " ", "Publisher-provided feed content: " + str(exc))[:300],
+                      })
+
+              # If the feed does not supply usable story text, try the publisher page
+              # using the same bounded fetcher and the source-specific host allowlist.
               article_result["attempts"] += 1
               try:
                   response = fetcher.fetch(
@@ -112,7 +160,7 @@ jobs:
                   evidence = extract_article(
                       response.text(),
                       response.url,
-                      source_name=candidate.get("feed_name", "Unknown publisher"),
+                      source_name=candidate.get("publisher_name") or candidate.get("feed_name", "Unknown publisher"),
                       fallback_title=candidate.get("title", ""),
                       content_type=response.content_type,
                   )
@@ -121,6 +169,7 @@ jobs:
                       raise ArticleExtractionError("Extracted body text was shorter than 80 characters")
                   article_result = {
                       "status": "extracted",
+                      "retrieval_method": "publisher_article_page",
                       "attempts": article_result["attempts"],
                       "title": evidence.title[:300],
                       "source_url": evidence.source_url,
@@ -198,7 +247,7 @@ jobs:
               ("One feed fetched successfully", checked == 1),
               ("At least one article candidate parsed", candidate_count > 0),
               ("No feed failures", len(failures) == 0),
-              ("A real article page fetched and yielded extracted text", (article_result.get("status") == "extracted" and article_result.get("body_characters", 0) >= 80) or (article_fallback.get("status") == "extracted" and article_fallback.get("body_characters", 0) >= 80)),
+              ("Article extraction produced text from a permitted source or a separate reference-page test", (article_result.get("status") == "extracted" and article_result.get("body_characters", 0) >= 80) or (article_fallback.get("status") == "extracted" and article_fallback.get("body_characters", 0) >= 80)),
               ("No publishing performed", publishing is False and article_result.get("publishing_performed") is False and article_fallback.get("publishing_performed") is False),
               ("CLI exit code is zero", result.returncode == 0),
           ]
@@ -207,13 +256,14 @@ jobs:
           lines = [
               "## Live RSS ingestion smoke test",
               "",
-              f"**Result: {'PASSED' if passed else 'FAILED'}**",
+              f"**Result: {'PASSED' if passed and article_result.get('status') == 'extracted' else 'PASSED WITH PUBLISHER ACCESS RESTRICTION' if passed else 'FAILED'}**",
               "",
               f"- Feeds configured: {configured}",
               f"- Feeds checked successfully: {checked}",
               f"- Article candidates parsed: {candidate_count}",
               f"- Feed failures: {len(failures)}",
-              f"- Configured-feed article extraction: {article_result.get('status')}",
+              f"- Article text status: {article_result.get('status')}",
+              f"- Article retrieval method: {article_result.get('retrieval_method', 'none')}",
               f"- Configured-feed article body characters: {article_result.get('body_characters', 0)}",
               f"- Configured-feed article attempts: {article_result.get('attempts', 0)}",
               f"- Reference-page extraction: {article_fallback.get('status')}",
