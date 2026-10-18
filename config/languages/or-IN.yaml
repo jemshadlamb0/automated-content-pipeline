@@ -1,0 +1,9 @@
+id: or-IN
+name: Odia
+language: Odia
+locale: or-IN
+default_region: IN-OD
+editorial_rules:
+  - Write natural Odia news prose, not literal sentence-by-sentence translation.
+  - Preserve names, dates, numbers, measures, attribution and uncertainty.
+  - Do not infer local impact when the source provides no supporting evidence.

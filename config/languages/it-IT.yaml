@@ -1,0 +1,9 @@
+id: it-IT
+name: Italian
+language: Italian
+locale: it-IT
+default_region: IT
+editorial_rules:
+  - Scrivi notizie naturali in italiano, non una traduzione letterale frase per frase.
+  - Distingui i fatti confermati dalle dichiarazioni attribuite e dalle incertezze.
+  - Conserva nomi, date, numeri, unità di misura e attribuzioni delle fonti.

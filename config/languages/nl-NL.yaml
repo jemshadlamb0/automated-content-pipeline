@@ -1,0 +1,9 @@
+id: nl-NL
+name: Dutch (Netherlands)
+language: Dutch
+locale: nl-NL
+default_region: NL
+editorial_rules:
+  - Schrijf natuurlijk journalistiek Nederlands, niet als een letterlijke vertaling.
+  - Maak onderscheid tussen bevestigde feiten, toegeschreven beweringen en onzekerheid.
+  - Behoud namen, datums, cijfers, eenheden en bronvermelding.

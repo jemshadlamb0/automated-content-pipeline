@@ -4,7 +4,7 @@ import argparse
 import json
 import os
 from pathlib import Path
-from acp.config import ConfigurationError, load_profile, load_settings
+from acp.config import ConfigurationError, effective_region, load_profile, load_settings, validate_language_selection
 
 
 def main() -> int:
@@ -16,10 +16,13 @@ def main() -> int:
         settings_path = Path(args.settings)
         settings = load_settings(settings_path)
         config_dir = settings_path.resolve().parent
-        niche = load_profile("niches", settings["profile"]["niche"], config_dir)
-        language = load_profile("languages", settings["profile"]["language"], config_dir)
-        tone = load_profile("tones", settings["profile"]["tone"], config_dir)
-        approach = load_profile("approaches", settings["profile"]["approach"], config_dir)
+        profile_settings = settings["profile"]
+        niche = load_profile("niches", profile_settings["niche"], config_dir)
+        language = load_profile("languages", profile_settings["language"], config_dir)
+        tone = load_profile("tones", profile_settings["tone"], config_dir)
+        approach = load_profile("approaches", profile_settings["approach"], config_dir)
+        validate_language_selection(language, profile_settings.get("language_variant"), profile_settings.get("region"))
+        region = effective_region(language, profile_settings.get("region"))
     except ConfigurationError as exc:
         parser.error(str(exc))
     if args.check_config:
@@ -27,6 +30,8 @@ def main() -> int:
             "status": "valid",
             "niche": niche["id"],
             "language": language["id"],
+            "language_variant": profile_settings.get("language_variant") or None,
+            "region": region,
             "tone": tone["id"],
             "approach": approach["id"],
             "publication_enabled": settings["publication"]["enabled"],

@@ -1,0 +1,9 @@
+id: vi-VN
+name: Vietnamese
+language: Vietnamese
+locale: vi-VN
+default_region: VN
+editorial_rules:
+  - Write natural Vietnamese news prose, not word-for-word translation.
+  - Preserve names, dates, figures, units and attributed claims.
+  - Retain uncertainty and avoid adding context not supported by the evidence.

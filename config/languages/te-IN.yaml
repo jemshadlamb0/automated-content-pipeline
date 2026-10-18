@@ -1,0 +1,9 @@
+id: te-IN
+name: Telugu
+language: Telugu
+locale: te-IN
+default_region: IN-AP
+editorial_rules:
+  - Write natural Telugu editorial news prose, not word-for-word English translation.
+  - Preserve proper names, product identifiers, dates, numbers, measures and attribution.
+  - Explain specialized terms briefly when useful and retain source uncertainty.

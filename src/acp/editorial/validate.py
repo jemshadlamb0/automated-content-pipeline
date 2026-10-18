@@ -9,14 +9,29 @@ class ArticleValidationError(ValueError):
     """Raised when generated article output fails basic editorial checks."""
 
 
+def _valid_http_url(value: str) -> bool:
+    parsed = urlparse(value)
+    return (
+        parsed.scheme in {"http", "https"}
+        and bool(parsed.hostname)
+        and parsed.username is None
+        and parsed.password is None
+        and len(value) <= 4096
+        and not any(ord(char) < 0x20 or char.isspace() for char in value)
+    )
+
+
 def validate_article_output(
     raw_output: str | dict[str, Any],
     expected_source_url: str,
     max_body_chars: int = 16000,
 ) -> dict[str, Any]:
-    """Parse and validate required fields; this is not semantic fact-checking."""
-    if max_body_chars < 1:
-        raise ValueError("max_body_chars must be positive")
+    """Parse and validate required fields; these checks are not semantic fact-checking."""
+    if not 1 <= max_body_chars <= 100000:
+        raise ValueError("max_body_chars must be between 1 and 100000")
+    if not _valid_http_url(expected_source_url):
+        raise ValueError("expected_source_url must be a valid HTTP(S) URL")
+
     if isinstance(raw_output, str):
         text = raw_output.strip()
         fence = chr(96) * 3
@@ -41,18 +56,22 @@ def validate_article_output(
             raise ArticleValidationError(f"Required field '{key}' must be a non-empty string")
     if len(data["headline"]) > 300:
         raise ArticleValidationError("headline exceeds 300 characters")
+    if len(data["standfirst"]) > 1000:
+        raise ArticleValidationError("standfirst exceeds 1000 characters")
     if len(data["body"]) > max_body_chars:
         raise ArticleValidationError(f"body exceeds configured maximum of {max_body_chars} characters")
-
-    source = urlparse(data["source_url"])
-    if source.scheme not in {"http", "https"} or not source.hostname or source.username or source.password:
+    if not _valid_http_url(data["source_url"]):
         raise ArticleValidationError("source_url is not a valid HTTP(S) URL")
     if data["source_url"].strip() != expected_source_url.strip():
         raise ArticleValidationError("generated source_url does not match the expected publisher URL")
 
     for key in ("key_facts", "uncertainties"):
-        if key in data and (not isinstance(data[key], list) or any(not isinstance(value, str) for value in data[key])):
-            raise ArticleValidationError(f"'{key}' must be a list of strings when provided")
+        if key in data and (
+            not isinstance(data[key], list)
+            or len(data[key]) > 100
+            or any(not isinstance(value, str) or len(value) > 2000 for value in data[key])
+        ):
+            raise ArticleValidationError(f"'{key}' must be a bounded list of strings when provided")
     if "requires_human_review" in data and not isinstance(data["requires_human_review"], bool):
         raise ArticleValidationError("'requires_human_review' must be a boolean")
     return data

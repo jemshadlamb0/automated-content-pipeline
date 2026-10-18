@@ -1,0 +1,9 @@
+id: mr-IN
+name: Marathi
+language: Marathi
+locale: mr-IN
+default_region: IN-MH
+editorial_rules:
+  - Write natural Marathi news prose rather than literal translation from English.
+  - Retain names, product identifiers, dates, figures, measures and source attribution.
+  - Explain specialized terms concisely when useful to the intended audience.

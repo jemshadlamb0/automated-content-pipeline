@@ -1,0 +1,9 @@
+id: fa-IR
+name: Persian (Iran)
+language: Persian
+locale: fa-IR
+default_region: IR
+editorial_rules:
+  - Write natural Persian news prose, not a literal sentence-by-sentence translation.
+  - Preserve names, dates, figures, units, attribution and uncertainty.
+  - Respect Persian script conventions and avoid silently converting currencies or measurements.

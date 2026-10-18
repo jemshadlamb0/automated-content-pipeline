@@ -5,9 +5,10 @@ app:
 profile:
   niche: ai
   language: ml-IN
+  language_variant: ""
   tone: broadcast
   approach: explainer
-  region: IN-KL
+  region: AUTO
   custom_instructions: ""
 schedule:
   poll_interval_minutes: 15
@@ -24,6 +25,7 @@ sources:
 generation:
   provider: huggingface_local
   model_id: ""
+  model_revision: ""
   device: cpu
   max_input_characters: 16000
   max_new_tokens: 1200

@@ -1,0 +1,9 @@
+id: tr-TR
+name: Turkish
+language: Turkish
+locale: tr-TR
+default_region: TR
+editorial_rules:
+  - Write natural Turkish news prose rather than sentence-by-sentence translation.
+  - Separate verified facts from claims and speculation.
+  - Preserve names, dates, figures, units and attribution.

@@ -1,0 +1,9 @@
+id: as-IN
+name: Assamese
+language: Assamese
+locale: as-IN
+default_region: IN-AS
+editorial_rules:
+  - Write natural Assamese news prose, not word-by-word translation.
+  - Preserve names, dates, figures, units and source attribution.
+  - Use local context only when it is supported by source evidence.
