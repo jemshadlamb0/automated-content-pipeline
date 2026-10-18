@@ -35,13 +35,24 @@ def _inner_content(node: ET.Element | None) -> str:
         return ""
     if len(node) == 0:
         return (node.text or "")[:MAX_EMBEDDED_CONTENT_CHARS]
-    parts = [node.text or ""]
+    parts: list[str] = []
+    size = 0
+    if node.text:
+        parts.append(node.text[:MAX_EMBEDDED_CONTENT_CHARS])
+        size = len(parts[0])
     for child in node:
-        parts.append(ET.tostring(child, encoding="unicode", method="xml"))
-        parts.append(child.tail or "")
-        if sum(map(len, parts)) >= MAX_EMBEDDED_CONTENT_CHARS:
+        if size >= MAX_EMBEDDED_CONTENT_CHARS:
             break
-    return "".join(parts)[:MAX_EMBEDDED_CONTENT_CHARS]
+        markup = ET.tostring(child, encoding="unicode", method="xml")
+        tail = child.tail or ""
+        remaining = MAX_EMBEDDED_CONTENT_CHARS - size
+        parts.append(markup[:remaining])
+        size += min(len(markup), remaining)
+        if size < MAX_EMBEDDED_CONTENT_CHARS and tail:
+            remaining = MAX_EMBEDDED_CONTENT_CHARS - size
+            parts.append(tail[:remaining])
+            size += min(len(tail), remaining)
+    return "".join(parts)
 
 
 def _atom_content_type(value: str | None) -> str:
