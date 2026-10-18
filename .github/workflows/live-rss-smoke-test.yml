@@ -247,7 +247,7 @@ jobs:
               ("One feed fetched successfully", checked == 1),
               ("At least one article candidate parsed", candidate_count > 0),
               ("No feed failures", len(failures) == 0),
-              ("A real article page fetched and yielded extracted text", (article_result.get("status") == "extracted" and article_result.get("body_characters", 0) >= 80) or (article_fallback.get("status") == "extracted" and article_fallback.get("body_characters", 0) >= 80)),
+              ("Article extraction produced text from a permitted source or a separate reference-page test", (article_result.get("status") == "extracted" and article_result.get("body_characters", 0) >= 80) or (article_fallback.get("status") == "extracted" and article_fallback.get("body_characters", 0) >= 80)),
               ("No publishing performed", publishing is False and article_result.get("publishing_performed") is False and article_fallback.get("publishing_performed") is False),
               ("CLI exit code is zero", result.returncode == 0),
           ]
@@ -256,7 +256,7 @@ jobs:
           lines = [
               "## Live RSS ingestion smoke test",
               "",
-              f"**Result: {'PASSED' if passed else 'FAILED'}**",
+              f"**Result: {'PASSED' if passed and article_result.get('status') == 'extracted' else 'PASSED WITH PUBLISHER ACCESS RESTRICTION' if passed else 'FAILED'}**",
               "",
               f"- Feeds configured: {configured}",
               f"- Feeds checked successfully: {checked}",
