@@ -1,0 +1,10 @@
+id: technology
+name: Consumer technology
+topics: [smartphones, tablets, PCs, processors, GPUs, storage, operating systems, cybersecurity, telecom, wearables, cameras, audio, consumer electronics, electric vehicles]
+exclusions: []
+freshness_hours: 36
+preferred_source_types: [manufacturer_announcement, regulator, reputable_publisher]
+editorial_guardrails:
+  - Preserve product names, model numbers and specifications.
+  - State prices or availability for a region only when supported by the source.
+  - Clearly label leaks and rumours.

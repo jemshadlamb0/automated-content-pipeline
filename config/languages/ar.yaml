@@ -1,0 +1,9 @@
+id: ar
+name: Arabic
+language: Arabic
+locale: ar
+default_region: null
+editorial_rules:
+  - Use natural Arabic news prose appropriate to the selected locale.
+  - Ask for a regional preference when local context matters and none is configured.
+  - Preserve names, dates, measurements, attribution and uncertainty.

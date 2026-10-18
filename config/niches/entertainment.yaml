@@ -1,0 +1,10 @@
+id: entertainment
+name: Entertainment
+topics: [cinema, streaming, music, television, gaming entertainment, release announcements]
+exclusions: []
+freshness_hours: 48
+preferred_source_types: [official_studio, artist_announcement, reputable_publisher]
+editorial_guardrails:
+  - Separate confirmed announcements from rumours.
+  - Avoid unsupported allegations about identifiable people.
+  - Do not reproduce copyrighted lyrics or substantial copyrighted dialogue.

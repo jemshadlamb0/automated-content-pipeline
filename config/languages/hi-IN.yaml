@@ -1,0 +1,9 @@
+id: hi-IN
+name: Hindi (India)
+language: Hindi
+locale: hi-IN
+default_region: IN
+editorial_rules:
+  - Write natural Hindi editorial news prose, not literal translation.
+  - Use familiar technical terms where they improve clarity and briefly explain unfamiliar terms.
+  - Preserve proper nouns, model names, dates, figures, attribution and uncertainty.

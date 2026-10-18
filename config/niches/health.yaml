@@ -1,0 +1,10 @@
+id: health
+name: Health
+topics: [public health, medical research, health policy, medicine safety, epidemiology]
+exclusions: []
+freshness_hours: 168
+preferred_source_types: [public_health_agency, peer_reviewed_journal, regulator, hospital]
+editorial_guardrails:
+  - Preserve limitations and uncertainty from the evidence.
+  - Do not provide personalized diagnosis, treatment or dosage advice.
+  - High-impact medical claims require human review under the default policy.

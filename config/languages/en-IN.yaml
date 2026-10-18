@@ -1,0 +1,10 @@
+id: en-IN
+name: English (India)
+language: English
+locale: en-IN
+default_region: IN
+editorial_rules:
+  - Use natural Indian English news style and spelling conventions.
+  - Prefer Indian context, currency and units only where supported by source evidence.
+  - Avoid sentence-by-sentence translation.
+  - Preserve product names, dates, measurements, attribution and uncertainty.

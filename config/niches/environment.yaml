@@ -1,0 +1,9 @@
+id: environment
+name: Environment
+topics: [climate, biodiversity, pollution, conservation, sustainability, energy transition]
+exclusions: []
+freshness_hours: 168
+preferred_source_types: [official_agency, peer_reviewed_journal, research_institute, reputable_publisher]
+editorial_guardrails:
+  - Attribute scientific claims and preserve uncertainty.
+  - Distinguish observed measurements, projections and policy targets.

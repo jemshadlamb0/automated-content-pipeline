@@ -1,0 +1,9 @@
+id: gaming
+name: Gaming
+topics: [games, consoles, PC gaming, esports, game updates, releases, game studios]
+exclusions: []
+freshness_hours: 48
+preferred_source_types: [official_developer, platform_announcement, tournament_organizer, reputable_publisher]
+editorial_guardrails:
+  - Distinguish release dates by platform and region.
+  - Never invent performance claims, patch notes or release windows.

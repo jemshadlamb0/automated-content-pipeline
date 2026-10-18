@@ -1,0 +1,9 @@
+id: business
+name: Business
+topics: [companies, startups, funding, mergers, acquisitions, company strategy, jobs]
+exclusions: []
+freshness_hours: 48
+preferred_source_types: [company_filing, regulator, company_announcement, reputable_publisher]
+editorial_guardrails:
+  - Identify whether funding amounts are announced, reported or estimated.
+  - Do not present forecasts or company claims as independently verified facts.

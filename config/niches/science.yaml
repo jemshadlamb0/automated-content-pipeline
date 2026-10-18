@@ -1,0 +1,10 @@
+id: science
+name: Science
+topics: [space, physics, biology, climate science, scientific research, engineering]
+exclusions: []
+freshness_hours: 168
+preferred_source_types: [journal, university, research_institute, official_agency]
+editorial_guardrails:
+  - Distinguish preprints, peer-reviewed papers and established consensus.
+  - Preserve study limitations; do not infer causation from correlational studies.
+  - Do not overstate laboratory results as proven real-world products.

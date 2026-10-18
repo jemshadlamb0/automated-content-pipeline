@@ -1,0 +1,10 @@
+id: finance
+name: Finance
+topics: [financial markets, banking, interest rates, corporate earnings, regulation, personal finance]
+exclusions: []
+freshness_hours: 24
+preferred_source_types: [regulator, exchange, company_filing, central_bank, reputable_publisher]
+editorial_guardrails:
+  - Distinguish reporting and analysis from advice or recommendations.
+  - Preserve dates, currencies and geographic scope.
+  - Never fabricate prices, returns, earnings, rates or forecasts.

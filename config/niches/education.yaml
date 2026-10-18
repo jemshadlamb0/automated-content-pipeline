@@ -1,0 +1,9 @@
+id: education
+name: Education
+topics: [education policy, scholarships, examinations, universities, research, digital learning]
+exclusions: []
+freshness_hours: 168
+preferred_source_types: [education_department, university, official_exam_board, reputable_publisher]
+editorial_guardrails:
+  - Verify deadlines, eligibility, location and official application links.
+  - Do not invent scholarship offers, admission rules or examination dates.

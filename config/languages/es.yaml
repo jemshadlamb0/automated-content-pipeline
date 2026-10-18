@@ -1,0 +1,9 @@
+id: es
+name: Spanish
+language: Spanish
+locale: es
+default_region: null
+editorial_rules:
+  - Use natural Spanish editorial news prose and avoid literal translation.
+  - Ask for a regional preference when local context matters and none is configured.
+  - Preserve names, dates, measurements, attribution and uncertainty.

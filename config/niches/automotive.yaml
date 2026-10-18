@@ -1,0 +1,10 @@
+id: automotive
+name: Automotive
+topics: [vehicle launches, electric vehicles, safety recalls, motorsport, charging, automotive technology]
+exclusions: []
+freshness_hours: 48
+preferred_source_types: [manufacturer_announcement, regulator, safety_recall, reputable_publisher]
+editorial_guardrails:
+  - Distinguish claimed range and performance from independently tested results.
+  - Identify the market to which price and availability apply.
+  - Prioritize official sources for recalls and safety notices.

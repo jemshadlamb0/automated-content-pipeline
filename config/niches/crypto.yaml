@@ -1,0 +1,10 @@
+id: crypto
+name: Cryptocurrency and blockchain
+topics: [digital assets, blockchain infrastructure, exchanges, security incidents, policy, regulation]
+exclusions: []
+freshness_hours: 12
+preferred_source_types: [regulator, official_project_notice, security_advisory, reputable_publisher]
+editorial_guardrails:
+  - Preserve timestamps and sources for market prices; never invent live values.
+  - Distinguish confirmed incidents from allegations and unverified claims.
+  - Do not promise returns or provide personalized trading instructions.

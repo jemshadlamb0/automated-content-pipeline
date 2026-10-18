@@ -1,0 +1,9 @@
+id: ta-IN
+name: Tamil (India)
+language: Tamil
+locale: ta-IN
+default_region: IN-TN
+editorial_rules:
+  - Write natural Tamil news prose rather than reproducing English sentence structure.
+  - Retain product names, acronyms and common technical terms where appropriate.
+  - Preserve names, dates, measurements, attribution and uncertainty.

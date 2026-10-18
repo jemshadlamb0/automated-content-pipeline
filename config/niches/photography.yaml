@@ -1,0 +1,10 @@
+id: photography
+name: Photography
+topics: [cameras, lenses, lighting, editing software, photography techniques, industry news]
+exclusions: []
+freshness_hours: 72
+preferred_source_types: [manufacturer_announcement, software_release, reputable_photography_publisher]
+editorial_guardrails:
+  - Preserve camera/lens model names, focal lengths, apertures and sensor formats.
+  - Clearly label leaks and rumours.
+  - Public availability of an image does not imply a reuse licence.
