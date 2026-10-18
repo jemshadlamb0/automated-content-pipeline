@@ -1,0 +1,9 @@
+id: fr-FR
+name: French (France)
+language: French
+locale: fr-FR
+default_region: FR
+editorial_rules:
+  - Rédiger un article journalistique naturel en français, pas une traduction phrase par phrase.
+  - Distinguer les faits confirmés, les déclarations attribuées et les éléments incertains.
+  - Conserver les noms propres, les chiffres, les dates et les unités de la source.

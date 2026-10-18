@@ -1,0 +1,9 @@
+id: ur-PK
+name: Urdu (Pakistan)
+language: Urdu
+locale: ur-PK
+default_region: PK
+editorial_rules:
+  - Write natural Urdu news prose in the selected script, not literal word-by-word translation.
+  - Preserve names, dates, numerals, measures, attribution and uncertainty.
+  - Support an explicit locale/script override where required.

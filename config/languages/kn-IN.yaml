@@ -1,0 +1,9 @@
+id: kn-IN
+name: Kannada
+language: Kannada
+locale: kn-IN
+default_region: IN-KA
+editorial_rules:
+  - Write natural Kannada editorial news prose, not word-by-word translation.
+  - Preserve proper names, product identifiers, dates, numbers, units and attribution.
+  - Keep uncertainty explicit and explain technical terms where helpful.

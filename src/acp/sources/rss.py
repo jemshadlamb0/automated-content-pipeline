@@ -3,7 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urlparse
-import xml.etree.ElementTree as ET
+from defusedxml import ElementTree as ET
+from defusedxml.common import DefusedXmlException
 
 
 @dataclass(frozen=True)
@@ -23,12 +24,7 @@ def _text(node: ET.Element | None) -> str:
 
 def _valid_http_url(value: str) -> bool:
     parsed = urlparse(value.strip())
-    return (
-        parsed.scheme in {"https", "http"}
-        and bool(parsed.hostname)
-        and not parsed.username
-        and not parsed.password
-    )
+    return parsed.scheme in {"https", "http"} and bool(parsed.hostname) and not parsed.username and not parsed.password
 
 
 def parse_feed(xml_text: str, feed_url: str, max_items: int = 50) -> list[FeedItem]:
@@ -37,10 +33,12 @@ def parse_feed(xml_text: str, feed_url: str, max_items: int = 50) -> list[FeedIt
         raise ValueError("feed_url must be an absolute HTTP(S) URL")
     if not 1 <= max_items <= 500:
         raise ValueError("max_items must be between 1 and 500")
+    if len(xml_text) > 2_000_000:
+        raise ValueError("feed body exceeds 2 MB limit")
     try:
         root = ET.fromstring(xml_text)
-    except ET.ParseError as exc:
-        raise ValueError(f"Invalid feed XML: {exc}") from exc
+    except (ET.ParseError, DefusedXmlException) as exc:
+        raise ValueError(f"Invalid or unsafe feed XML: {exc}") from exc
 
     items: list[FeedItem] = []
     # RSS 2.0
@@ -52,9 +50,7 @@ def parse_feed(xml_text: str, feed_url: str, max_items: int = 50) -> list[FeedIt
             if not title or not _valid_http_url(link):
                 continue
             items.append(FeedItem(
-                title=title,
-                url=link,
-                summary=_text(node.find("description")),
+                title=title, url=link, summary=_text(node.find("description")),
                 published_at=_text(node.find("pubDate")) or None,
                 source_name=_text(node.find("source")) or None,
             ))

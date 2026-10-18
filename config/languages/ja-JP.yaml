@@ -1,0 +1,9 @@
+id: ja-JP
+name: Japanese
+language: Japanese
+locale: ja-JP
+default_region: JP
+editorial_rules:
+  - Write natural Japanese news copy, not sentence-by-sentence translation.
+  - Use clear, consistent news register and preserve proper nouns, dates, numerical units and source attribution.
+  - Explain unfamiliar technical terms concisely when needed without distorting their meaning.

@@ -1,0 +1,9 @@
+id: de-DE
+name: German (Germany)
+language: German
+locale: de-DE
+default_region: DE
+editorial_rules:
+  - Schreibe einen natürlichen journalistischen Text auf Deutsch statt einer wörtlichen Satz-für-Satz-Übersetzung.
+  - Trenne belegte Fakten, zugeschriebene Aussagen und Unsicherheiten.
+  - Bewahre Namen, Datumsangaben, Zahlen, Einheiten und Quellenzuordnung.

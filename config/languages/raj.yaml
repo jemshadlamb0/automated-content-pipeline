@@ -1,0 +1,13 @@
+id: raj
+name: Rajasthani language group (variety required)
+language: Rajasthani language group
+locale: raj
+default_region: IN-RJ
+family_profile: true
+requires_variant: true
+publishing_enabled_by_default: false
+available_varieties: [Marwari, Mewari, Dhundhari, Harauti, other user-specified Rajasthani variety]
+editorial_rules:
+  - This group-level placeholder requires a specific variety before publication.
+  - Ask for the variety and preferred script when the selection is ambiguous.
+  - Never claim linguistic coverage is validated until tested with that variety.

@@ -1,19 +1,23 @@
-"""Optional local CPU inference with an open-weight Hugging Face model.
+"""Optional local CPU inference with a pinned open-weight Hugging Face model.
 
 Install with: pip install -e ".[huggingface]". Review the model card and
-licence first. This adapter uses local Transformers inference, not a paid
-hosted endpoint. Downloads and CPU generation can be slow or memory-intensive.
+licence first. This uses local Transformers inference, not a paid hosted
+endpoint. The revision must be a full immutable 40-character commit SHA.
 """
 from __future__ import annotations
 import os
+import re
 from acp.providers.base import GenerationRequest, GenerationResult
 
 
 class HuggingFaceLocalProvider:
-    def __init__(self, model_id: str | None = None, device: str = "cpu") -> None:
+    def __init__(self, model_id: str | None = None, device: str = "cpu", revision: str | None = None) -> None:
         self.model_id = (model_id or os.getenv("ACP_MODEL_ID", "")).strip()
+        self.revision = (revision or "").strip().lower()
         if not self.model_id:
             raise ValueError("Set generation.model_id or ACP_MODEL_ID to a reviewed Hugging Face model ID.")
+        if not re.fullmatch(r"[0-9a-f]{40}", self.revision):
+            raise ValueError("generation.model_revision must be a full 40-character immutable Hugging Face commit SHA.")
         if device != "cpu":
             raise ValueError("The initial adapter supports CPU only.")
         try:
@@ -23,10 +27,14 @@ class HuggingFaceLocalProvider:
             raise RuntimeError(
                 'Install optional local inference dependencies with: pip install -e ".[huggingface]"'
             ) from exc
+
         self._torch = torch
-        self._tokenizer = AutoTokenizer.from_pretrained(self.model_id, trust_remote_code=False)
+        self._tokenizer = AutoTokenizer.from_pretrained(
+            self.model_id, revision=self.revision, trust_remote_code=False
+        )
         self._model = AutoModelForCausalLM.from_pretrained(
-            self.model_id, trust_remote_code=False, low_cpu_mem_usage=True
+            self.model_id, revision=self.revision, trust_remote_code=False,
+            use_safetensors=True, low_cpu_mem_usage=True
         )
         self._model.to("cpu")
         self._model.eval()

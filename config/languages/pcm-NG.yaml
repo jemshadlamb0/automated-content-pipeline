@@ -1,0 +1,9 @@
+id: pcm-NG
+name: Nigerian Pidgin
+language: Nigerian Pidgin
+locale: pcm-NG
+default_region: NG
+editorial_rules:
+  - Write clear, natural Nigerian Pidgin suitable for news, not word-for-word English translation.
+  - Preserve proper names, dates, numbers, measures, source attribution and uncertainty.
+  - Use the configured spelling preference consistently; do not claim there is one universal written standard.

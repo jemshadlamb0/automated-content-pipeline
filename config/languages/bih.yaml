@@ -1,0 +1,14 @@
+id: bih
+name: Bihari language family (variety required)
+language: Bihari language family
+locale: bih
+default_region: IN
+family_profile: true
+requires_variant: true
+publishing_enabled_by_default: false
+available_varieties: [Bhojpuri, Maithili, Magahi, other user-specified Bihari variety]
+editorial_rules:
+  - This is a family-level placeholder, not a sufficiently specific target variety for publication.
+  - Require the user to choose a specific language variety before generating or publishing.
+  - After a variety is selected, apply that variety's script, spelling and editorial conventions.
+  - Never label an output as a specific variety unless that variety was explicitly selected and tested.

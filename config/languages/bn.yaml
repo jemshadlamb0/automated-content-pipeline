@@ -1,0 +1,10 @@
+id: bn
+name: Bengali
+language: Bengali
+locale: bn
+default_region: null
+region_selection_required: true
+editorial_rules:
+  - Write natural Bengali news prose rather than a sentence-by-sentence translation.
+  - Ask for a region when local context matters; Bengali-language audiences include Bangladesh and parts of India.
+  - Preserve names, dates, numerals, measures, attribution and uncertainty.

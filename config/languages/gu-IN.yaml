@@ -1,0 +1,9 @@
+id: gu-IN
+name: Gujarati
+language: Gujarati
+locale: gu-IN
+default_region: IN-GJ
+editorial_rules:
+  - Write natural Gujarati news prose rather than translating sentence structure literally.
+  - Preserve names, dates, quantities, units and source attribution.
+  - Explain specialist terminology concisely without adding unsupported facts.

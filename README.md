@@ -1,59 +1,60 @@
 # Automated Content Pipeline
 
-A configurable foundation for multilingual, source-grounded publishing with Hugging Face model support and a shared Telegram control plane.
+A configurable foundation for multilingual, source-grounded news publishing with Hugging Face model support and a shared Telegram control plane.
 
-> **Status: early foundation release, not an end-to-end publisher yet.** Configuration validation, niche/language/tone/approach profiles, regional scoring, RSS/Atom XML parsing, structured output validation, editorial prompt construction, an optional local Hugging Face adapter and secret-free CI are included. Production source fetching, article extraction, the multi-tenant Telegram control plane, persistent production queue, publishing/media adapters and billing are not implemented. Publishing remains disabled by default.
+> **Status: early foundation release, not yet an end-to-end publisher.** This repository includes profile-driven configuration, a local Hugging Face adapter, source-grounded editorial prompt composition, a candidate-ranking helper, RSS/Atom XML parsing, structured output validation, an SSRF URL-policy primitive, security tests and CI. Production source fetching/article extraction, multi-tenant Telegram control plane, durable queue, live publishing/media adapters and billing remain unimplemented. Publishing is disabled by default.
 
-## Included now
+## Included profiles
 
-- Niche profiles: AI, technology, sports, entertainment, science, health, finance, crypto, photography, automotive, gaming, business, education and environment.
-- Locale profiles: Malayalam (India), English (India), Hindi (India), Tamil (India), Spanish and Arabic.
-- Tone profiles: broadcast, neutral, conversational and analytical.
-- Approach profiles: explainer, news brief, analysis and roundup.
-- A deterministic weighted candidate scorer and local/national/global allocation helper. Signal extraction and region detection still need implementation; the weights are configurable starting assumptions, not a validated ranking model.
-- An RSS/Atom parser for feed XML that has already been fetched. Safe network fetching and publisher URL resolution are not yet implemented.
-- A structured article-output validator. It checks fields, length and the expected source URL; it is not a semantic fact-checker.
-- An optional CPU-only local Hugging Face/Transformers adapter. Model downloads and inference may be slow or exceed runner memory.
-- CI tests that do not require secrets and do not publish content.
+**Niches:** AI, technology, sports, entertainment, science, health, finance, crypto, photography, automotive, gaming, business, education and environment.
+
+**Languages/locales:** Malayalam, English (India), Hindi, Tamil, Spanish, Arabic, French, Bengali, Portuguese, Russian, Indonesian, Urdu, German, Japanese, Nigerian Pidgin, Persian, Marathi, Vietnamese, Telugu, Turkish, Malay (Malaysia), Dutch, Assamese, Italian, Odia, Bihari language family, Rajasthani language group, Punjabi, Bhojpuri, Kannada and Gujarati.
+
+Language does not uniquely identify a region. Users must be able to override regional defaults; Bengali and Arabic require region selection. Bihari and Rajasthani are family/group placeholders and require a specific variety before use. Language profiles do not guarantee that a particular model writes that language accurately.
 
 ## Quick start
 
 Requires Python 3.11+.
 
-```bash
+~~~bash
 python -m venv .venv
 # Windows PowerShell: .venv\Scripts\Activate.ps1
 # macOS/Linux: source .venv/bin/activate
 python -m pip install -e ".[dev]"
 python -m acp.main --check-config
 pytest
-```
+~~~
 
 Optional local inference dependencies:
 
-```bash
+~~~bash
 python -m pip install -e ".[huggingface]"
-```
+~~~
 
-Review the model card, licence, target-language support, RAM requirements and quality before setting `generation.model_id`. Downloading an open-weight model is not a guarantee of fast CPU inference or fluent output in every supported language.
+Review the Hugging Face model card, licence, provenance, target-language performance, RAM requirements and revision before use. CPU inference may be slow or impractical for long articles. Production should pin an approved immutable model revision.
 
 ## Safety defaults
 
-- Publication disabled; dry-run enabled.
-- No secrets or model weights in the repository.
-- No automatic paid hosted-inference fallback.
-- No image/video rehosting without appropriate reuse permission.
-- Finance, crypto and health topics have stricter editorial guardrails.
-- Generated output validation does not replace human review or independent fact-checking.
+- Publication is disabled and dry-run is enabled.
+- Real tokens, model weights, caches and runtime data must not be committed.
+- Paid hosted-inference fallback is disabled.
+- RSS parsing uses a defensive XML parser and bounded input size.
+- URL policy rejects private/non-global destinations, credentials, unexpected ports and unsafe schemes. A production fetcher must additionally validate every redirect and prevent DNS rebinding at connection time.
+- Public images/videos are not automatically licensed for redistribution.
+- Health, finance and crypto need stronger review policies.
 
-## Target architecture
+## Wiki
 
-The intended design separates a central, owner-operated Telegram control plane from a separately budgeted execution plane. The control plane will manage tenants, channel mappings, commands, entitlements and quotas; execution workers will discover sources, extract evidence, generate and validate articles, and publish only to verified user destinations.
+Start with the [repository wiki index](docs/wiki/README.md). It includes setup, all language profiles, editorial policy, regional ranking, security, operations and the roadmap. These versioned pages are stored in the repository; they are not a separately hosted GitHub Wiki tab.
 
-See [architecture](docs/ARCHITECTURE.md), [configuration](docs/CONFIGURATION.md), [security](docs/SECURITY.md), and [roadmap](docs/ROADMAP.md).
+## Architecture and status
 
-Use GitHub for source control, CI, tests, releases and trusted deployment workflows. Do not assume GitHub Actions is an appropriate production runtime for a paid service; review the applicable GitHub terms before launch.
+The intended design separates one owner-operated Telegram bot/control plane from a separately budgeted execution plane. The bot manages users and settings; the execution plane retrieves sources, extracts evidence, runs the selected model, validates output and publishes only to verified destinations.
 
-## License
+See [architecture](docs/ARCHITECTURE.md), [configuration](docs/CONFIGURATION.md), [security policy](docs/SECURITY.md), and [roadmap](docs/ROADMAP.md).
 
-No licence has been added yet. Public visibility alone does not grant permission to reuse, modify or redistribute this project. Confirm the intended commercial and contribution policy before adding a licence.
+Use GitHub for source control, CI, tests, releases and trusted deployment workflows. Do not assume GitHub Actions is an appropriate commercial production runtime; review the applicable terms before launch.
+
+## Licence
+
+A licence has not been added yet. Public repository visibility alone does not grant permission to reuse, modify or redistribute the code. Confirm the intended commercial and contribution policy before adding one.

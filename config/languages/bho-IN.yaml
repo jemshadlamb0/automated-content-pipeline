@@ -1,0 +1,9 @@
+id: bho-IN
+name: Bhojpuri
+language: Bhojpuri
+locale: bho-IN
+default_region: IN
+editorial_rules:
+  - Write natural Bhojpuri news prose rather than literal translation.
+  - Confirm the user's preferred script and orthographic convention when relevant.
+  - Preserve names, dates, figures, measures, attribution and uncertainty.

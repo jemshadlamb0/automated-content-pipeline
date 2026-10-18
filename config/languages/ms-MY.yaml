@@ -1,0 +1,9 @@
+id: ms-MY
+name: Malay (Malaysia)
+language: Malay
+locale: ms-MY
+default_region: MY
+editorial_rules:
+  - Tulis berita dalam bahasa Melayu yang semula jadi, bukan terjemahan kata demi kata.
+  - Bezakan fakta yang disahkan, dakwaan sumber dan perkara yang belum pasti.
+  - Kekalkan nama, tarikh, angka, unit dan atribusi sumber.

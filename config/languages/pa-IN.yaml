@@ -1,0 +1,9 @@
+id: pa-IN
+name: Punjabi (India)
+language: Punjabi
+locale: pa-IN
+default_region: IN-PB
+editorial_rules:
+  - Write natural Punjabi news prose using the selected locale and script.
+  - Default to Gurmukhi for this India locale; allow explicit region/script override when supported.
+  - Preserve names, dates, numbers, measures, attribution and uncertainty.

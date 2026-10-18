@@ -1,0 +1,9 @@
+id: id-ID
+name: Indonesian
+language: Indonesian
+locale: id-ID
+default_region: ID
+editorial_rules:
+  - Tulis berita yang alami dalam bahasa Indonesia, bukan terjemahan kata demi kata.
+  - Bedakan fakta terverifikasi, klaim sumber, opini, dan ketidakpastian.
+  - Pertahankan nama, tanggal, angka, satuan, dan atribusi sumber.
