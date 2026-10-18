@@ -11,6 +11,8 @@ def test_parse_rss_entry():
     assert len(items) == 1
     assert items[0].title == "Example headline"
     assert items[0].url == "https://news.example/story"
+    assert items[0].summary == "Short summary"
+    assert items[0].feed_content == ""
 
 
 def test_invalid_feed_xml_raises():
@@ -79,3 +81,14 @@ def test_atom_plain_text_content_type_is_preserved():
     item = parse_feed(xml, "https://news.example/atom-feed")[0]
     assert item.feed_content == "Publisher provided content."
     assert item.feed_content_type == "text/plain"
+
+
+
+def test_rss_content_encoded_is_bounded():
+    story = "x" * 25_000
+    xml = f"""<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+    <channel><item><title>Long story</title><link>https://news.example/story</link>
+    <content:encoded><![CDATA[{story}]]></content:encoded>
+    </item></channel></rss>"""
+    item = parse_feed(xml, "https://news.example/rss")[0]
+    assert len(item.feed_content) == 20_000
