@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   dependency-and-static-checks:
+    name: dependency-and-static-checks
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -32,8 +33,10 @@ jobs:
       - name: Dependency vulnerability audit
         run: pip-audit -r requirements.txt
       - name: Static security analysis
-        run: bandit -q -r src -ll
+        run: bandit -q -r src scripts -ll
+      - name: Secret pattern scan
+        run: python scripts/check_secrets.py
       - name: Lint
-        run: ruff check --select E4,E7,E9,F src tests
+        run: ruff check --select E4,E7,E9,F src tests scripts
       - name: Tests
         run: pytest
