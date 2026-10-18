@@ -1,30 +1,31 @@
 # Roadmap and service boundaries
 
 ## Foundation present
-- Configuration validation and profiles.
-- Niche, language, tone and approach catalogues.
+- Configuration validation and niche/language/tone/approach profiles.
+- Hugging Face local provider interface.
+- Editorial prompt composition and structured output validation.
 - Regional weighted-scoring helper.
-- RSS/Atom XML parsing of already-fetched feed bodies.
-- Basic structured article validation.
-- Editorial prompt composition and optional local Hugging Face adapter.
-- URL policy validation primitive and CI.
+- Defensive RSS/Atom parser.
+- URL policy helper plus IP-pinned, redirect-validating bounded HTTP fetcher.
+- Feed candidate discovery, duplicate filtering and bounded HTML article extraction.
+- Non-publishing CLI for configuration checks, feed discovery and one-article extraction.
+- CI, static analysis, dependency audit, secret-pattern scanner, CodeQL and Dependabot.
 
 ## Remaining before end-to-end use
-1. Safe outbound HTTP fetcher, redirect handling, DNS-rebinding controls, feed retrieval and publisher URL canonicalization.
-2. Evidence extraction and a structured source-claim record.
-3. Region/entity detection and source-quality inputs for candidate ranking.
+1. Curated feed catalogue, source-quality policies and real-world fixture coverage.
+2. More robust publisher URL canonicalization, freshness checks and durable deduplication.
+3. Region/entity detection and evidence-backed inputs to the regional ranking.
 4. Structured inference integration, model revision pinning and per-language quality gates.
-5. Durable queue, locks, quotas and idempotent delivery.
-6. Shared Telegram webhook, onboarding, installation authentication and channel verification.
-7. Telegram publisher, formatting/escaping and media-size/licence fallback.
-8. Monitoring, backups, operator commands and incident response.
-9. Premium entitlements and metered managed execution.
-10. Legal/licensing review and production hosting compliant with current provider terms.
+5. Claim-to-source review and human-review routing for high-impact stories.
+6. Durable queue, locks, quotas and idempotent delivery.
+7. Shared Telegram webhook, onboarding, installation authentication and channel verification.
+8. Telegram publisher, formatting/escaping and rights-aware media-size fallback.
+9. Monitoring, backups, support processes and managed premium entitlements.
 
 ## Release gates
 - A: tests and security analysis pass.
-- B: mocked end-to-end draft passes, with no secrets and no publishing in CI.
-- C: private test bot and private channel, with tenant/auth/idempotency scenarios tested.
+- B: mocked ingestion and draft generation passes without secrets or publishing in CI.
+- C: private test bot/channel, with authorization and idempotency scenarios tested.
 - D: quota exhaustion, provider outage and rollback tests pass.
 - E: limited beta with spending caps and support process.
-- F: premium plans only after unit costs, entitlement enforcement and applicable terms are verified.
+- F: premium plans only after unit costs, entitlements and current terms are verified.
