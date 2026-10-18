@@ -100,7 +100,7 @@ def test_candidate_carries_embedded_content_and_keeps_configured_feed_label():
             "name": "Trusted Example Feed",
             "url": "https://feeds.example.org/feed",
             "region_tier": "global",
-            "allowed_hosts": ["news.example.org"],
+            "allowed_hosts": ["feeds.example.org", "news.example.org"],
         }],
         fetcher,
     )
