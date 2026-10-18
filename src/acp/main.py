@@ -18,6 +18,8 @@ def main() -> int:
         config_dir = settings_path.resolve().parent
         niche = load_profile("niches", settings["profile"]["niche"], config_dir)
         language = load_profile("languages", settings["profile"]["language"], config_dir)
+        tone = load_profile("tones", settings["profile"]["tone"], config_dir)
+        approach = load_profile("approaches", settings["profile"]["approach"], config_dir)
     except ConfigurationError as exc:
         parser.error(str(exc))
     if args.check_config:
@@ -25,6 +27,8 @@ def main() -> int:
             "status": "valid",
             "niche": niche["id"],
             "language": language["id"],
+            "tone": tone["id"],
+            "approach": approach["id"],
             "publication_enabled": settings["publication"]["enabled"],
             "dry_run": settings["publication"]["dry_run"],
             "generation_provider": settings["generation"]["provider"],

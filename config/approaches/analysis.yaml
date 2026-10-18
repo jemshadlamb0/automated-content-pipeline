@@ -1,0 +1,6 @@
+id: analysis
+name: Analysis
+instructions:
+  - Separate verified facts, source interpretations and analytical inference.
+  - Explain plausible implications and counterpoints supported by evidence.
+  - State key uncertainties and avoid unsupported prediction.

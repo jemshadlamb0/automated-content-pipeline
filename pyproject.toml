@@ -17,6 +17,7 @@ huggingface = [
   "transformers>=4.48",
   "huggingface_hub>=0.27",
   "safetensors>=0.4",
+  "accelerate>=0.26",
 ]
 
 [project.scripts]

@@ -1,0 +1,6 @@
+id: analytical
+name: Analytical
+instructions:
+  - Explain context, implications and trade-offs supported by evidence.
+  - Separate the source's facts from analysis and clearly identify uncertainty.
+  - Do not present an inference as a verified fact.

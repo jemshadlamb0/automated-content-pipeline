@@ -1,0 +1,6 @@
+id: news_brief
+name: News brief
+instructions:
+  - Lead with the most consequential confirmed development.
+  - Prioritize the who, what, when, where and source-supported why.
+  - Be concise and do not add padding or speculative context.

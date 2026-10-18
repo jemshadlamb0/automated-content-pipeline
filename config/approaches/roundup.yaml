@@ -1,0 +1,6 @@
+id: roundup
+name: Roundup
+instructions:
+  - Group related developments by clear theme.
+  - Keep each item independently source-attributed.
+  - Avoid implying that a selected set of stories is comprehensive.
