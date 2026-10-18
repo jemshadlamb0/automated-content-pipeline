@@ -116,3 +116,24 @@ def test_rejects_invalid_fetcher_limits():
         SafeHTTPFetcher(timeout_seconds=100)
     with pytest.raises(ValueError):
         SafeHTTPFetcher(max_redirects=100)
+
+
+
+def test_rejects_string_instead_of_allowlist_collection():
+    client = SafeHTTPFetcher(resolver=resolver, requester=lambda *_: RawHTTPResponse(200, HTML_HEADERS, b"ok"), max_response_bytes=4096)
+    with pytest.raises(ValueError, match="collection"):
+        client.fetch("https://news.example.org/story", allowed_hosts="news.example.org")
+
+
+def test_rejects_ambiguous_transfer_encoding_with_content_length():
+    client = SafeHTTPFetcher(
+        resolver=resolver,
+        requester=lambda *_: RawHTTPResponse(
+            200,
+            {"content-type": "text/html", "content-length": "2", "transfer-encoding": "chunked"},
+            b"ok",
+        ),
+        max_response_bytes=4096,
+    )
+    with pytest.raises(HTTPFetchError, match="transfer encoding"):
+        client.fetch("https://news.example.org/story")

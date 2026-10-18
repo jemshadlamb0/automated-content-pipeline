@@ -62,6 +62,8 @@ class FetchResponse:
 def _normalize_allowlist(allowed_hosts: Iterable[str] | None) -> tuple[str, ...] | None:
     if allowed_hosts is None:
         return None
+    if isinstance(allowed_hosts, (str, bytes)):
+        raise ValueError("allowed_hosts must be a collection of host patterns, not a string")
     result: list[str] = []
     for item in allowed_hosts:
         if not isinstance(item, str) or not item.strip():
@@ -226,6 +228,11 @@ class SafeHTTPFetcher:
                 raise HTTPFetchError(f"Upstream returned retryable HTTP {raw.status} after retries")
             if raw.status != 200:
                 raise HTTPFetchError(f"Upstream returned HTTP {raw.status}")
+            transfer_encoding = raw_headers.get("transfer-encoding", "").lower()
+            if transfer_encoding and (
+                transfer_encoding != "chunked" or "content-length" in raw_headers
+            ):
+                raise HTTPFetchError("Unsupported or ambiguous upstream transfer encoding")
             encoding = raw_headers.get("content-encoding", "identity").lower()
             if encoding not in {"", "identity"}:
                 raise HTTPFetchError("Compressed upstream responses are not accepted")
@@ -281,6 +288,11 @@ class SafeHTTPFetcher:
                 if int(content_length) > max_bytes:
                     raise HTTPFetchError("Upstream response exceeded configured size limit")
 
+            transfer_encoding = response_headers.get("transfer-encoding", "").lower()
+            if transfer_encoding and (
+                transfer_encoding != "chunked" or "content-length" in response_headers
+            ):
+                raise HTTPFetchError("Unsupported or ambiguous upstream transfer encoding")
             encoding = response_headers.get("content-encoding", "identity").lower()
             if encoding not in {"", "identity"}:
                 raise HTTPFetchError("Compressed upstream responses are not accepted")
