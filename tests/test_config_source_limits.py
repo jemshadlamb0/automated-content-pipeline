@@ -13,7 +13,7 @@ def _write_settings(tmp_path, replacement_from, replacement_to):
     text = DEFAULT.read_text(encoding="utf-8")
     # Keep validation tests independent from any trusted feeds configured for live runs.
     text = re.sub(
-        r"(?ms)^  feeds:.*?(?=^[A-Za-z0-9_-]+:|\\Z)",
+        r"(?ms)^  feeds:.*?(?=^[A-Za-z0-9_-]+:)",
         "  feeds: []\n",
         text,
         count=1,
