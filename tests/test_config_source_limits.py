@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 import pytest
 
@@ -10,6 +11,13 @@ DEFAULT = ROOT / "config" / "settings.yaml"
 
 def _write_settings(tmp_path, replacement_from, replacement_to):
     text = DEFAULT.read_text(encoding="utf-8")
+    # Keep validation tests independent from any trusted feeds configured for live runs.
+    text = re.sub(
+        r"(?ms)^  feeds:.*?(?=^[A-Za-z0-9_-]+:|\\Z)",
+        "  feeds: []\n",
+        text,
+        count=1,
+    )
     assert replacement_from in text
     path = tmp_path / "settings.yaml"
     path.write_text(text.replace(replacement_from, replacement_to), encoding="utf-8")
@@ -37,7 +45,7 @@ def test_configured_feed_must_be_https(tmp_path):
     path = _write_settings(
         tmp_path,
         "  feeds: []",
-        '  feeds:\n    - name: Bad feed\n      url: http://news.example.org/rss\n',
+        '  feeds:\\n    - name: Bad feed\\n      url: http://news.example.org/rss\\n',
     )
     with pytest.raises(ConfigurationError, match="HTTPS URL"):
         load_settings(path)
@@ -47,7 +55,7 @@ def test_configured_feed_cannot_embed_credentials(tmp_path):
     path = _write_settings(
         tmp_path,
         "  feeds: []",
-        '  feeds:\n    - name: Bad feed\n      url: https://user:pass@news.example.org/rss\n',
+        '  feeds:\\n    - name: Bad feed\\n      url: https://user:pass@news.example.org/rss\\n',
     )
     with pytest.raises(ConfigurationError, match="HTTPS URL"):
         load_settings(path)
