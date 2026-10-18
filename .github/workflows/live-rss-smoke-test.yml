@@ -134,7 +134,7 @@ jobs:
               except (HTTPFetchError, UnsafeURLError, ArticleExtractionError, ValueError, OSError) as exc:
                   article_errors.append({
                       "title": str(candidate.get("title") or "(untitled)")[:160],
-                      "reason": re.sub(r"[\\r\\n\\t]", " ", f"{type(exc).__name__}: {exc}")[:300],
+                      "reason": re.sub(r"[\r\n\t]", " ", f"{type(exc).__name__}: {exc}")[:300],
                   })
           article_result["errors"] = article_errors
           payload["article_extraction"] = article_result
@@ -201,8 +201,8 @@ jobs:
           if article_errors:
               lines.extend(["", "### Article extraction attempts"])
               for failure in article_errors:
-                  title = re.sub(r"[\\r\\n\\t|]", " ", str(failure.get("title") or "(untitled)"))[:160]
-                  reason = re.sub(r"[\\r\\n\\t|]", " ", str(failure.get("reason") or "Unknown error"))[:300]
+                  title = re.sub(r"[\r\n\t|]", " ", str(failure.get("title") or "(untitled)"))[:160]
+                  reason = re.sub(r"[\r\n\t|]", " ", str(failure.get("reason") or "Unknown error"))[:300]
                   lines.append(f"- **{title}:** {reason}")
 
           lines.extend([
