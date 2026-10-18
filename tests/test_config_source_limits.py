@@ -45,7 +45,7 @@ def test_configured_feed_must_be_https(tmp_path):
     path = _write_settings(
         tmp_path,
         "  feeds: []",
-        '  feeds:\\n    - name: Bad feed\\n      url: http://news.example.org/rss\\n',
+        '  feeds:\n    - name: Bad feed\n      url: http://news.example.org/rss\n',
     )
     with pytest.raises(ConfigurationError, match="HTTPS URL"):
         load_settings(path)
@@ -55,7 +55,7 @@ def test_configured_feed_cannot_embed_credentials(tmp_path):
     path = _write_settings(
         tmp_path,
         "  feeds: []",
-        '  feeds:\\n    - name: Bad feed\\n      url: https://user:pass@news.example.org/rss\\n',
+        '  feeds:\n    - name: Bad feed\n      url: https://user:pass@news.example.org/rss\n',
     )
     with pytest.raises(ConfigurationError, match="HTTPS URL"):
         load_settings(path)
