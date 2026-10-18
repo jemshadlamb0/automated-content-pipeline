@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from html import escape
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -29,6 +30,23 @@ def _text(node: ET.Element | None) -> str:
     return " ".join("".join(node.itertext()).split())
 
 
+def _serialize_content_node(node: ET.Element) -> str:
+    """Serialize feed-supplied XHTML as an attribute-free HTML fragment.
+
+    Dropping XML namespace prefixes lets the conservative HTML parser recognize
+    standard elements (for example, xhtml:p) without trusting feed attributes.
+    """
+    tag = node.tag.rsplit("}", 1)[-1].lower()
+    if not tag or not tag[0].isalpha() or not all(char.isalnum() or char in "-_:" for char in tag):
+        return escape("".join(node.itertext()), quote=False)
+    parts = [f"<{tag}>", escape(node.text or "", quote=False)]
+    for child in node:
+        parts.append(_serialize_content_node(child))
+        parts.append(escape(child.tail or "", quote=False))
+    parts.append(f"</{tag}>")
+    return "".join(parts)
+
+
 def _inner_content(node: ET.Element | None) -> str:
     """Return bounded feed-supplied content, preserving HTML markup when present."""
     if node is None:
@@ -43,7 +61,7 @@ def _inner_content(node: ET.Element | None) -> str:
     for child in node:
         if size >= MAX_EMBEDDED_CONTENT_CHARS:
             break
-        markup = ET.tostring(child, encoding="unicode", method="xml")
+        markup = _serialize_content_node(child)
         tail = child.tail or ""
         remaining = MAX_EMBEDDED_CONTENT_CHARS - size
         parts.append(markup[:remaining])
