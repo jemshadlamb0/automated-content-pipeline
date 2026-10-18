@@ -92,3 +92,22 @@ def test_rss_content_encoded_is_bounded():
     </item></channel></rss>"""
     item = parse_feed(xml, "https://news.example/rss")[0]
     assert len(item.feed_content) == 20_000
+
+
+
+def test_atom_xhtml_content_uses_html_local_names_without_xml_prefixes():
+    xml = """<?xml version="1.0"?>
+    <feed xmlns="http://www.w3.org/2005/Atom"
+          xmlns:xhtml="http://www.w3.org/1999/xhtml">
+      <entry>
+        <title>XHTML story</title>
+        <link href="https://news.example/xhtml"/>
+        <content type="xhtml"><xhtml:div><xhtml:p>Publisher XHTML has enough descriptive text for the article extractor.</xhtml:p>
+        <xhtml:p>A second paragraph explains the source details in plain readable markup.</xhtml:p></xhtml:div></content>
+      </entry>
+    </feed>"""
+    item = parse_feed(xml, "https://news.example/atom-feed")[0]
+    assert item.feed_content_type == "application/xhtml+xml"
+    assert "<div>" in item.feed_content
+    assert "<p>" in item.feed_content
+    assert "xhtml:p" not in item.feed_content
