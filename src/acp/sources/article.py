@@ -159,6 +159,42 @@ class _ArticleHTMLParser(HTMLParser):
             self._paragraph.append(data)
 
 
+
+def extract_plain_feed_content(
+    content: str,
+    source_url: str,
+    *,
+    source_name: str = "",
+    title: str = "",
+    published_at: str | None = None,
+    description: str = "",
+    min_body_chars: int = 80,
+    max_body_chars: int = 20000,
+) -> ArticleEvidence:
+    """Normalize explicit publisher-supplied plain-text feed content as evidence."""
+    if not _valid_source_url(source_url):
+        raise ArticleExtractionError("Invalid or unsafe source URL")
+    if not isinstance(content, str) or not content.strip() or len(content) > 2_000_000:
+        raise ArticleExtractionError("Feed content is empty or exceeds the 2 MB character limit")
+    if not 1 <= min_body_chars <= max_body_chars <= 100000:
+        raise ValueError("Invalid article extraction length limits")
+    clean_title = _clean(title, 500)
+    body = _clean(content, max_body_chars)
+    if not clean_title:
+        raise ArticleExtractionError("No usable article title was supplied by the feed")
+    if len(body) < min_body_chars:
+        raise ArticleExtractionError("Insufficient publisher-supplied feed content")
+    return ArticleEvidence(
+        source_name=_clean(source_name, 200) or "Unknown publisher",
+        source_url=source_url,
+        title=clean_title,
+        published_at=_clean(published_at, 120) if published_at else None,
+        description=_clean(description, 2000),
+        body_text=body,
+        fetched_at=datetime.now(timezone.utc).isoformat(),
+        content_type="text/plain",
+    )
+
 def extract_article(
     html: str,
     source_url: str,
