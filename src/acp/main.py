@@ -19,6 +19,16 @@ from acp.sources.discovery import discover_candidates
 from acp.sources.http_fetcher import SafeHTTPFetcher
 
 
+def _candidate_json(item, *, include_feed_content: bool = False) -> dict:
+    """Serialize a candidate without exposing publisher-supplied body text by default."""
+    payload = asdict(item)
+    feed_content = payload.pop("feed_content", "")
+    payload["feed_content_chars"] = len(feed_content)
+    if include_feed_content:
+        payload["feed_content"] = feed_content
+    return payload
+
+
 def _fetcher_from_settings(settings: dict) -> SafeHTTPFetcher:
     sources = settings["sources"]
     return SafeHTTPFetcher(
@@ -92,11 +102,7 @@ def main() -> int:
             "feeds_checked": result.feeds_checked,
             "candidate_count": len(result.candidates),
             "candidates": [
-                {
-                    **{key: value for key, value in asdict(item).items() if key != "feed_content"},
-                    "feed_content_chars": len(item.feed_content),
-                    **({"feed_content": item.feed_content} if args.include_feed_content else {}),
-                }
+                _candidate_json(item, include_feed_content=args.include_feed_content)
                 for item in result.candidates
             ],
             "failures": [asdict(item) for item in result.failures],
