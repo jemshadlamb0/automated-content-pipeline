@@ -239,6 +239,10 @@ jobs:
           checked = payload.get("feeds_checked", 0)
           candidates = payload.get("candidates", [])
           candidate_count = payload.get("candidate_count", len(candidates))
+          embedded_content_candidate_count = sum(
+              len(str(candidate.get("feed_content") or "").strip()) >= 80
+              for candidate in candidates
+          )
           failures = payload.get("failures", [])
           publishing = payload.get("publishing_performed")
 
@@ -261,6 +265,8 @@ jobs:
               f"- Feeds configured: {configured}",
               f"- Feeds checked successfully: {checked}",
               f"- Article candidates parsed: {candidate_count}",
+              f"- Candidates with publisher-supplied embedded content (80+ chars): {embedded_content_candidate_count}",
+              f"- Candidates relying on article-page/other fallback: {max(0, candidate_count - embedded_content_candidate_count)}",
               f"- Feed failures: {len(failures)}",
               f"- Article text status: {article_result.get('status')}",
               f"- Article retrieval method: {article_result.get('retrieval_method', 'none')}",
